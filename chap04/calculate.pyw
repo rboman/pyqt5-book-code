@@ -9,21 +9,14 @@
 # warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
 # the GNU General Public License for more details.
 
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-from future_builtins import *
-
 import sys
 from math import *
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import (QApplication, QDialog, QLineEdit, QTextBrowser,
-        QVBoxLayout)
+from PyQt5.QtWidgets import *
 
 
 class Form(QDialog):
     
-
     def __init__(self, parent=None):
         super(Form, self).__init__(parent)
         self.browser = QTextBrowser()
@@ -40,7 +33,7 @@ class Form(QDialog):
 
     def updateUi(self):
         try:
-            text = unicode(self.lineedit.text())
+            text = self.lineedit.text()
             self.browser.append("{0} = <b>{1}</b>".format(text,
                                 eval(text)))
         except:

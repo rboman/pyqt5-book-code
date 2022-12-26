@@ -9,11 +9,6 @@
 # warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
 # the GNU General Public License for more details.
 
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-from future_builtins import *
-
 from PyQt4.QtCore import (QDate, QString, Qt, SIGNAL, pyqtSignature)
 from PyQt4.QtGui import (QApplication, QDialog, QDialogButtonBox)
 import moviedata_ans as moviedata

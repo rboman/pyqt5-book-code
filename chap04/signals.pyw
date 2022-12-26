@@ -65,7 +65,7 @@ class ZeroSpinBox(QSpinBox):
     def checkzero(self):
         if self.value() == 0:
             self.zeros += 1
-            self.atzero.emit(self.zeros)
+            self.atzero.returnPressed(self.zeros)
 
 class Form3(QDialog):
 

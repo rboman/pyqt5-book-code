@@ -15,8 +15,9 @@ from builtins import next
 from builtins import range
 import platform
 import sys
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 
 class RichTextLineEdit(QTextEdit):
@@ -24,13 +25,14 @@ class RichTextLineEdit(QTextEdit):
     (Bold, Italic, Underline, StrikeOut, Monospaced, Sans, Serif,
      NoSuperOrSubscript, Subscript, Superscript) = list(range(10))
 
+    returnPressed = pyqtSignal()
 
     def __init__(self, parent=None):
         super(RichTextLineEdit, self).__init__(parent)
 
-        self.monofamily = QString("courier")
-        self.sansfamily = QString("helvetica")
-        self.seriffamily = QString("times")
+        self.monofamily = "courier"
+        self.sansfamily = "helvetica"
+        self.seriffamily = "times"
         self.setLineWrapMode(QTextEdit.NoWrap)
         self.setTabChangesFocus(True)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -93,7 +95,8 @@ class RichTextLineEdit(QTextEdit):
                 event.accept()
                 return
         if event.key() in (Qt.Key_Enter, Qt.Key_Return):
-            self.emit(SIGNAL("returnPressed()"))
+            # self.emit(SIGNAL("returnPressed()"))
+            self.returnPressed.emit()
             event.accept()
         else:
             QTextEdit.keyPressEvent(self, event)
@@ -200,7 +203,7 @@ class RichTextLineEdit(QTextEdit):
 
 
     def toSimpleHtml(self):
-        html = QString()
+        html = ""
         black = QColor(Qt.black)
         block = self.document().begin()
         while block.isValid():
@@ -211,32 +214,32 @@ class RichTextLineEdit(QTextEdit):
                     format = fragment.charFormat()
                     family = format.fontFamily()
                     color = format.foreground().color()
-                    text = Qt.escape(fragment.text())
+                    from xml.sax.saxutils import escape as escape
+                    text = escape(fragment.text())
                     if format.verticalAlignment() == \
                        QTextCharFormat.AlignSubScript:
-                        text = QString("<sub>%1</sub>").arg(text)
+                        text = "<sub>{0}</sub>".format(text)
                     elif format.verticalAlignment() == \
                         QTextCharFormat.AlignSuperScript:
-                        text = QString("<sup>%1</sup>").arg(text)
+                        text = "<sup>{0}</sup>".format(text)
                     if format.fontUnderline():
-                        text = QString("<u>%1</u>").arg(text)
+                        text = "<u>{0}</u>".format(text)
                     if format.fontItalic():
-                        text = QString("<i>%1</i>").arg(text)
+                        text = "<i>{0}</i>".format(text)
                     if format.fontWeight() > QFont.Normal:
-                        text = QString("<b>%1</b>").arg(text)
+                        text = "<b>{0}</b>".format(text)
                     if format.fontStrikeOut():
-                        text = QString("<s>%1</s>").arg(text)
-                    if color != black or not family.isEmpty():
+                        text = "<s>{0}</s>".format(text)
+                    if color != black or not family:
                         attribs = ""
                         if color != black:
                             attribs += ' color="%s"' % color.name()
-                        if not family.isEmpty():
+                        if not family:
                             attribs += ' face="%s"' % family
-                        text = QString("<font%1>%2</font>")\
-                                       .arg(attribs).arg(text)
+                        text = "<font{0}>{1}</font>".format(attribs,text)
                     html += text
                 iterator += 1
-            block = next(block)
+            block = block.next()
         return html
 
 

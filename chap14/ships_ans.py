@@ -13,9 +13,10 @@ from builtins import str
 from builtins import range
 from builtins import object
 from future.utils import raise_
-import platform
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+# import platform
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 import richtextlineedit
 
 

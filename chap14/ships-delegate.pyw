@@ -11,8 +11,9 @@
 
 from builtins import str
 import sys
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 import ships
 
 MAC = "qt_mac_set_native_menubar" in dir()

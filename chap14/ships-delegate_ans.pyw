@@ -13,8 +13,9 @@ from builtins import str
 from builtins import range
 from future.utils import raise_
 import sys
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 import ships_ans as ships
 
 MAC = "qt_mac_set_native_menubar" in dir()

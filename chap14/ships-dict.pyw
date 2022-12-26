@@ -10,8 +10,9 @@
 # the GNU General Public License for more details.
 
 import sys
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 import ships
 
 MAC = "qt_mac_set_native_menubar" in dir()
@@ -71,15 +72,22 @@ class MainForm(QDialog):
         layout.addLayout(buttonLayout)
         self.setLayout(layout)
 
-        self.connect(self.tableWidget,
-                SIGNAL("itemChanged(QTableWidgetItem*)"),
-                self.tableItemChanged)
-        self.connect(addShipButton, SIGNAL("clicked()"), self.addShip)
-        self.connect(removeShipButton, SIGNAL("clicked()"),
-                     self.removeShip)
-        self.connect(quitButton, SIGNAL("clicked()"), self.accept)
+        # self.connect(self.tableWidget,
+        #         SIGNAL("itemChanged(QTableWidgetItem*)"),
+        #         self.tableItemChanged)
+        self.tableWidget.itemChanged.connect(self.tableItemChanged)
 
-        self.ships = ships.ShipContainer(QString("ships.dat"))
+        # self.connect(addShipButton, SIGNAL("clicked()"), self.addShip)
+        addShipButton.clicked.connect(self.addShip)
+
+        # self.connect(removeShipButton, SIGNAL("clicked()"),
+        #              self.removeShip)
+        removeShipButton.clicked.connect(self.removeShip)
+
+        # self.connect(quitButton, SIGNAL("clicked()"), self.accept)
+        quitButton.clicked.connect(self.accept)
+
+        self.ships = ships.ShipContainer("ships.dat")
         self.setWindowTitle("Ships (dict)")
         QTimer.singleShot(0, self.initialLoad)
 
@@ -122,9 +130,7 @@ class MainForm(QDialog):
         selected = None
         self.listWidget.clear()
         for ship in self.ships.inOrder():
-            item = QListWidgetItem(QString("%1 of %2/%3 (%L4)") \
-                    .arg(ship.name).arg(ship.owner).arg(ship.country) \
-                    .arg(ship.teu))
+            item = QListWidgetItem("{} of {}/{} ({})".format(ship.name,ship.owner,ship.country,ship.teu))
             self.listWidget.addItem(item)
             if selectedShip is not None and selectedShip == id(ship):
                 selected = item
@@ -153,8 +159,13 @@ class MainForm(QDialog):
                     QTableWidgetItem(ship.country))
             self.tableWidget.setItem(row, ships.DESCRIPTION,
                     QTableWidgetItem(ship.description))
-            item = QTableWidgetItem(QString("%L1") \
-                    .arg(ship.teu, 8, 10, QChar(" ")))
+            # item = QTableWidgetItem(QString("%L1") \
+            #         .arg(ship.teu, 8, 10, QChar(" ")))
+            item = QTableWidgetItem( f"{ship.teu}")
+
+
+
+            item = QTableWidgetItem(f"{ship.teu}")    
             item.setTextAlignment(Qt.AlignRight|Qt.AlignVCenter)
             self.tableWidget.setItem(row, ships.TEU, item)
         self.tableWidget.setSortingEnabled(True)
@@ -183,8 +194,7 @@ class MainForm(QDialog):
             if parent is None:
                 parent = QTreeWidgetItem(ancestor, [ship.owner])
                 parentFromCountryOwner[countryowner] = parent
-            item = QTreeWidgetItem(parent, [ship.name,
-                                   QString("%L1").arg(ship.teu)])
+            item = QTreeWidgetItem(parent, [ship.name, f"{ship.teu}"])
             item.setTextAlignment(1, Qt.AlignRight|Qt.AlignVCenter)
             if selectedShip is not None and selectedShip == id(ship):
                 selected = item
@@ -213,15 +223,15 @@ class MainForm(QDialog):
             return
         column = self.tableWidget.currentColumn()
         if column == ships.NAME:
-            ship.name = item.text().trimmed()
+            ship.name = item.text().strip()
         elif column == ships.OWNER:
-            ship.owner = item.text().trimmed()
+            ship.owner = item.text().strip()
         elif column == ships.COUNTRY:
-            ship.country = item.text().trimmed()
+            ship.country = item.text().strip()
         elif column == ships.DESCRIPTION:
-            ship.description = item.text().trimmed()
+            ship.description = item.text().strip()
         elif column == ships.TEU:
-            ship.teu = item.text().toInt()[0]
+            ship.teu = int(item.text())
         self.ships.dirty = True
         self.populateList()
         self.populateTree()
@@ -231,7 +241,8 @@ class MainForm(QDialog):
         item = self.tableWidget.item(self.tableWidget.currentRow(), 0)
         if item is None:
             return None
-        return self.ships.ship(item.data(Qt.UserRole).toLongLong()[0])
+        print("DEBUG:",item.data(Qt.UserRole))
+        return self.ships.ship(int(item.data(Qt.UserRole)))
 
 
     def removeShip(self):
@@ -239,8 +250,7 @@ class MainForm(QDialog):
         if ship is None:
             return
         if QMessageBox.question(self, "Ships - Remove", 
-                QString("Remove %1 of %2/%3?").arg(ship.name) \
-                        .arg(ship.owner).arg(ship.country),
+                "Remove {} of {}/{}?".format(ship.name,ship.owner,ship.country),
                 QMessageBox.Yes|QMessageBox.No) == QMessageBox.No:
             return
         self.ships.removeShip(ship)

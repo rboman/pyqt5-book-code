@@ -14,8 +14,17 @@ from builtins import range
 from builtins import object
 from future.utils import raise_
 from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import richtextlineedit
+import functools
+
+def localeAwareCompare(s1, s2):   # QString pas dispo
+    if s1<s2:
+        return -1
+    if s2<s1:
+        return 1
+    return 0
 
 
 NAME, OWNER, COUNTRY, DESCRIPTION, TEU = list(range(5))
@@ -27,22 +36,24 @@ FILE_VERSION = 1
 class Ship(object):
 
     def __init__(self, name, owner, country, teu=0, description=""):
-        self.name = QString(name)
-        self.owner = QString(owner)
-        self.country = QString(country)
+        self.name = name
+        self.owner = owner
+        self.country = country
         self.teu = teu
-        self.description = QString(description)
+        self.description = description
 
-
-    def __cmp__(self, other):
-        return QString.localeAwareCompare(self.name.toLower(),
-                                          other.name.toLower())
+    def __lt__(self, other):
+        return self.name<other.name
+    # def __cmp__(self, other):  # existe plus en python3
+    #     return self.name<other.name
+        # return QString.localeAwareCompare(self.name.toLower(),
+        #                                   other.name.toLower())
 
 
 class ShipContainer(object):
 
-    def __init__(self, filename=QString()):
-        self.filename = QString(filename)
+    def __init__(self, filename=""):
+        self.filename = filename
         self.dirty = False
         self.ships = {}
         self.owners = set()
@@ -82,11 +93,12 @@ class ShipContainer(object):
     def inCountryOwnerOrder(self):
         def compare(a, b):
             if a.country != b.country:
-                return QString.localeAwareCompare(a.country, b.country)
+                return localeAwareCompare(a.country, b.country)
             if a.owner != b.owner:
-                return QString.localeAwareCompare(a.owner, b.owner)
-            return QString.localeAwareCompare(a.name, b.name)
-        return sorted(list(self.ships.values()), compare)
+                return localeAwareCompare(a.owner, b.owner)
+            return localeAwareCompare(a.name, b.name)
+        return sorted(list(self.ships.values()), key=functools.cmp_to_key(compare))
+
 
 
     def load(self):
@@ -107,10 +119,10 @@ class ShipContainer(object):
                 raise IOError("unrecognized file type version")
             self.ships = {}
             while not stream.atEnd():
-                name = QString()
-                owner = QString()
-                country = QString()
-                description = QString()
+                name = ""
+                owner = ""
+                country = ""
+                description = ""
                 stream >> name >> owner >> country >> description
                 teu = stream.readInt32()
                 ship = Ship(name, owner, country, teu, description)
@@ -156,7 +168,7 @@ class ShipContainer(object):
 
 class ShipTableModel(QAbstractTableModel):
 
-    def __init__(self, filename=QString()):
+    def __init__(self, filename=""):
         super(ShipTableModel, self).__init__()
         self.filename = filename
         self.dirty = False
@@ -173,10 +185,10 @@ class ShipTableModel(QAbstractTableModel):
     def sortByCountryOwner(self):
         def compare(a, b):
             if a.country != b.country:
-                return QString.localeAwareCompare(a.country, b.country)
+                return localeAwareCompare(a.country, b.country)
             if a.owner != b.owner:
-                return QString.localeAwareCompare(a.owner, b.owner)
-            return QString.localeAwareCompare(a.name, b.name)
+                return localeAwareCompare(a.owner, b.owner)
+            return localeAwareCompare(a.name, b.name)
         self.ships = sorted(self.ships, compare)
         self.reset()
 

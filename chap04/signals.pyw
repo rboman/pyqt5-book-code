@@ -10,9 +10,8 @@
 # the GNU General Public License for more details.
 
 import sys
-from PyQt5.QtCore import (QObject, Qt, pyqtSignal)
-from PyQt5.QtWidgets import (QApplication, QDial, QDialog, QHBoxLayout,
-        QLineEdit, QSpinBox)
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 
 class Form(QDialog):

@@ -10,7 +10,7 @@
 # the GNU General Public License for more details.
 
 import sys
-import urllib2
+# import urllib2
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -48,8 +48,8 @@ class Form(QDialog):
 
 
     def updateUi(self):
-        to = unicode(self.toComboBox.currentText())
-        from_ = unicode(self.fromComboBox.currentText())
+        to = self.toComboBox.currentText()
+        from_ = self.fromComboBox.currentText()
         amount = ((self.rates[from_] / self.rates[to]) *
                   self.fromSpinBox.value())
         self.toLabel.setText("{0:.2f}".format(amount))
@@ -59,8 +59,11 @@ class Form(QDialog):
         self.rates = {}
         try:
             date = "Unknown"
-            fh = urllib2.urlopen("http://www.bankofcanada.ca"
-                                 "/en/markets/csv/exchange_eng.csv")
+            from urllib.request import urlopen
+            # fh = urlopen("http://www.bankofcanada.ca"
+            #                      "/en/markets/csv/exchange_eng.csv")
+            fh = urlopen("https://www.mindprod.com/jgloss/snippet/iframe/exchange_eng.csv").read() # does not work
+            fh = open("exchange_eng.csv",'r')
             for line in fh:
                 line = line.rstrip()
                 if not line or line.startswith(("#", "Closing ")):
@@ -71,7 +74,7 @@ class Form(QDialog):
                 else:
                     try:
                         value = float(fields[-1])
-                        self.rates[unicode(fields[0])] = value
+                        self.rates[fields[0]] = value
                     except ValueError:
                         pass
             return "Exchange Rates Date: " + date

@@ -9,6 +9,9 @@
 # warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
 # the GNU General Public License for more details.
 
+from builtins import str
+from builtins import range
+from future.utils import raise_
 import sys
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -86,14 +89,14 @@ class MainForm(QDialog):
         if not QFile.exists(self.model.filename):
             for ship in ships.generateFakeShips():
                 self.model.ships.append(ship)
-                self.model.owners.add(unicode(ship.owner))
-                self.model.countries.add(unicode(ship.country))
+                self.model.owners.add(str(ship.owner))
+                self.model.countries.add(str(ship.country))
             self.model.reset()
             self.model.dirty = False
         else:
             try:
                 self.model.load()
-            except IOError, e:
+            except IOError as e:
                 QMessageBox.warning(self, "Ships - Error",
                         "Failed to load: %s" % e)
         self.model.sortByName()
@@ -116,7 +119,7 @@ class MainForm(QDialog):
                     QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes:
             try:
                 self.model.save()
-            except IOError, e:
+            except IOError as e:
                 QMessageBox.warning(self, "Ships - Error",
                         "Failed to save: %s" % e)
         QDialog.accept(self)
@@ -168,7 +171,7 @@ class MainForm(QDialog):
 
 
     def export(self):
-        filename = unicode(QFileDialog.getSaveFileName(self,
+        filename = str(QFileDialog.getSaveFileName(self,
                             "Ships - Choose Export File", ".",
                             "Export files (*.txt)"))
         if not filename:
@@ -181,7 +184,7 @@ class MainForm(QDialog):
         try:
             fh = QFile(filename)
             if not fh.open(QIODevice.WriteOnly):
-                raise IOError, unicode(fh.errorString())
+                raise_(IOError, str(fh.errorString()))
             stream = QTextStream(fh)
             stream.setCodec("UTF-8")
             for row in range(self.model.rowCount()):
@@ -200,7 +203,7 @@ class MainForm(QDialog):
                 description = description.replace(htmlTags, "")
                 stream << name << "|" << owner << "|" << country \
                        << "|" << teu << "|" << description << "\n"
-        except (IOError, OSError), e:
+        except (IOError, OSError) as e:
             QMessageBox.warning(self, "Ships - Error",
                     "Failed to export: %s" % e)
         finally:

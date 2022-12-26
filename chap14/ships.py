@@ -9,13 +9,16 @@
 # warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
 # the GNU General Public License for more details.
 
-import platform
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from builtins import str
+from builtins import range
+from builtins import object
+from future.utils import raise_
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 import richtextlineedit
 
 
-NAME, OWNER, COUNTRY, DESCRIPTION, TEU = range(5)
+NAME, OWNER, COUNTRY, DESCRIPTION, TEU = list(range(5))
 
 MAGIC_NUMBER = 0x570C4
 FILE_VERSION = 1
@@ -52,8 +55,8 @@ class ShipContainer(object):
         
     def addShip(self, ship):
         self.ships[id(ship)] = ship
-        self.owners.add(unicode(ship.owner))
-        self.countries.add(unicode(ship.country))
+        self.owners.add(str(ship.owner))
+        self.countries.add(str(ship.country))
         self.dirty = True
 
 
@@ -68,7 +71,7 @@ class ShipContainer(object):
 
 
     def __iter__(self):
-        for ship in self.ships.values():
+        for ship in list(self.ships.values()):
             yield ship
 
 
@@ -83,7 +86,7 @@ class ShipContainer(object):
             if a.owner != b.owner:
                 return QString.localeAwareCompare(a.owner, b.owner)
             return QString.localeAwareCompare(a.name, b.name)
-        return sorted(self.ships.values(), compare)
+        return sorted(list(self.ships.values()), compare)
 
 
     def load(self):
@@ -91,17 +94,17 @@ class ShipContainer(object):
         fh = None
         try:
             if self.filename.isEmpty():
-                raise IOError, "no filename specified for loading"
+                raise IOError("no filename specified for loading")
             fh = QFile(self.filename)
             if not fh.open(QIODevice.ReadOnly):
-                raise IOError, unicode(fh.errorString())
+                raise_(IOError, str(fh.errorString()))
             stream = QDataStream(fh)
             magic = stream.readInt32()
             if magic != MAGIC_NUMBER:
-                raise IOError, "unrecognized file type"
+                raise IOError("unrecognized file type")
             fileVersion = stream.readInt16()
             if fileVersion != FILE_VERSION:
-                raise IOError, "unrecognized file type version"
+                raise IOError("unrecognized file type version")
             self.ships = {}
             while not stream.atEnd():
                 name = QString()
@@ -112,10 +115,10 @@ class ShipContainer(object):
                 teu = stream.readInt32()
                 ship = Ship(name, owner, country, teu, description)
                 self.ships[id(ship)] = ship
-                self.owners.add(unicode(owner))
-                self.countries.add(unicode(country))
+                self.owners.add(str(owner))
+                self.countries.add(str(country))
             self.dirty = False
-        except IOError, e:
+        except IOError as e:
             exception = e
         finally:
             if fh is not None:
@@ -129,20 +132,20 @@ class ShipContainer(object):
         fh = None
         try:
             if self.filename.isEmpty():
-                raise IOError, "no filename specified for saving"
+                raise IOError("no filename specified for saving")
             fh = QFile(self.filename)
             if not fh.open(QIODevice.WriteOnly):
-                raise IOError, unicode(fh.errorString())
+                raise_(IOError, str(fh.errorString()))
             stream = QDataStream(fh)
             stream.writeInt32(MAGIC_NUMBER)
             stream.writeInt16(FILE_VERSION)
             stream.setVersion(QDataStream.Qt_4_1)
-            for ship in self.ships.values():
+            for ship in list(self.ships.values()):
                 stream << ship.name << ship.owner << ship.country \
                        << ship.description
                 stream.writeInt32(ship.teu)
             self.dirty = False
-        except IOError, e:
+        except IOError as e:
             exception = e
         finally:
             if fh is not None:
@@ -306,17 +309,17 @@ class ShipTableModel(QAbstractTableModel):
         fh = None
         try:
             if self.filename.isEmpty():
-                raise IOError, "no filename specified for loading"
+                raise IOError("no filename specified for loading")
             fh = QFile(self.filename)
             if not fh.open(QIODevice.ReadOnly):
-                raise IOError, unicode(fh.errorString())
+                raise_(IOError, str(fh.errorString()))
             stream = QDataStream(fh)
             magic = stream.readInt32()
             if magic != MAGIC_NUMBER:
-                raise IOError, "unrecognized file type"
+                raise IOError("unrecognized file type")
             fileVersion = stream.readInt16()
             if fileVersion != FILE_VERSION:
-                raise IOError, "unrecognized file type version"
+                raise IOError("unrecognized file type version")
             self.ships = []
             while not stream.atEnd():
                 name = QString()
@@ -327,10 +330,10 @@ class ShipTableModel(QAbstractTableModel):
                 teu = stream.readInt32()
                 self.ships.append(Ship(name, owner, country, teu,
                                        description))
-                self.owners.add(unicode(owner))
-                self.countries.add(unicode(country))
+                self.owners.add(str(owner))
+                self.countries.add(str(country))
             self.dirty = False
-        except IOError, e:
+        except IOError as e:
             exception = e
         finally:
             if fh is not None:
@@ -344,10 +347,10 @@ class ShipTableModel(QAbstractTableModel):
         fh = None
         try:
             if self.filename.isEmpty():
-                raise IOError, "no filename specified for saving"
+                raise IOError("no filename specified for saving")
             fh = QFile(self.filename)
             if not fh.open(QIODevice.WriteOnly):
-                raise IOError, unicode(fh.errorString())
+                raise_(IOError, str(fh.errorString()))
             stream = QDataStream(fh)
             stream.writeInt32(MAGIC_NUMBER)
             stream.writeInt16(FILE_VERSION)
@@ -357,7 +360,7 @@ class ShipTableModel(QAbstractTableModel):
                        << ship.description
                 stream.writeInt32(ship.teu)
             self.dirty = False
-        except IOError, e:
+        except IOError as e:
             exception = e
         finally:
             if fh is not None:

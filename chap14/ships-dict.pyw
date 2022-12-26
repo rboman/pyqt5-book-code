@@ -92,7 +92,7 @@ class MainForm(QDialog):
         else:
             try:
                 self.ships.load()
-            except IOError, e:
+            except IOError as e:
                 QMessageBox.warning(self, "Ships - Error",
                         "Failed to load: %s" % e)
         self.populateList()
@@ -112,7 +112,7 @@ class MainForm(QDialog):
                     QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes:
             try:
                 self.ships.save()
-            except IOError, e:
+            except IOError as e:
                 QMessageBox.warning(self, "Ships - Error",
                         "Failed to save: %s" % e)
         QDialog.accept(self)
@@ -143,7 +143,7 @@ class MainForm(QDialog):
         self.tableWidget.setHorizontalHeaderLabels(headers)
         for row, ship in enumerate(self.ships):
             item = QTableWidgetItem(ship.name)
-            item.setData(Qt.UserRole, QVariant(long(id(ship))))
+            item.setData(Qt.UserRole, QVariant(int(id(ship))))
             if selectedShip is not None and selectedShip == id(ship):
                 selected = item
             self.tableWidget.setItem(row, ships.NAME, item)

@@ -9,6 +9,7 @@
 # warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
 # the GNU General Public License for more details.
 
+from builtins import str
 import sys
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -82,14 +83,14 @@ class MainForm(QDialog):
         if not QFile.exists(self.model.filename):
             for ship in ships.generateFakeShips():
                 self.model.ships.append(ship)
-                self.model.owners.add(unicode(ship.owner))
-                self.model.countries.add(unicode(ship.country))
+                self.model.owners.add(str(ship.owner))
+                self.model.countries.add(str(ship.country))
             self.model.reset()
             self.model.dirty = False
         else:
             try:
                 self.model.load()
-            except IOError, e:
+            except IOError as e:
                 QMessageBox.warning(self, "Ships - Error",
                         "Failed to load: %s" % e)
         self.model.sortByName()
@@ -112,7 +113,7 @@ class MainForm(QDialog):
                     QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes:
             try:
                 self.model.save()
-            except IOError, e:
+            except IOError as e:
                 QMessageBox.warning(self, "Ships - Error",
                         "Failed to save: %s" % e)
         QDialog.accept(self)

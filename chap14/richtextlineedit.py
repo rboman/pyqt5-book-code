@@ -9,6 +9,10 @@
 # warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
 # the GNU General Public License for more details.
 
+from __future__ import print_function
+from builtins import str
+from builtins import next
+from builtins import range
 import platform
 import sys
 from PyQt4.QtCore import *
@@ -18,7 +22,7 @@ from PyQt4.QtGui import *
 class RichTextLineEdit(QTextEdit):
 
     (Bold, Italic, Underline, StrikeOut, Monospaced, Sans, Serif,
-     NoSuperOrSubscript, Subscript, Superscript) = range(10)
+     NoSuperOrSubscript, Subscript, Superscript) = list(range(10))
 
 
     def __init__(self, parent=None):
@@ -232,7 +236,7 @@ class RichTextLineEdit(QTextEdit):
                                        .arg(attribs).arg(text)
                     html += text
                 iterator += 1
-            block = block.next()
+            block = next(block)
         return html
 
 
@@ -242,8 +246,8 @@ if __name__ == "__main__":
     lineedit.show()
     lineedit.setWindowTitle("RichTextEdit")
     app.exec_()
-    print unicode(lineedit.toHtml())
-    print unicode(lineedit.toPlainText())
-    print unicode(lineedit.toSimpleHtml())
+    print(str(lineedit.toHtml()))
+    print(str(lineedit.toPlainText()))
+    print(str(lineedit.toSimpleHtml()))
 
 

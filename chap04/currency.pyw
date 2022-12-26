@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (c) 2008 Qtrac Ltd. All rights reserved.
 # This program or module is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as published
@@ -75,7 +75,7 @@ class Form(QDialog):
                     except ValueError:
                         pass
             return "Exchange Rates Date: " + date
-        except Exception, e:
+        except Exception as e:
             return "Failed to download:\n{0}".format(e)
 
 
